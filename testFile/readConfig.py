@@ -8,11 +8,8 @@ config_path = os.path.join(path,
                            'config.ini')  # 这句话是在path路径下再加一级，最后变成C:\Users\songlihui\PycharmProjects\dkxinterfaceTest\config.ini
 config = configparser.ConfigParser()  # 调用外部的读取配置文件的方法
 config.read(config_path, encoding='utf-8')
-smtp_server = config.get('email','smtp_server')
-sender = config.get('email','sender')
-psw = config.get('email','psw')
-receiver = config.get('email','receiver')
-port = config.get('email','port')
+
+
 class ReadConfig():
 
     def get_http(self, name):
