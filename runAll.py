@@ -5,9 +5,38 @@ import time
 from common import  HTMLTestRunner
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from common import demo
 import smtplib
+import json
+import yaml
 cur_path = os.path.dirname(os.path.realpath(__file__)) # 当前脚本所在文件的真实路径
 print(cur_path)
+def login():
+    url = 'http://api2.learning-genie-api.com/api/v1/account/login'
+    data = {"email": "421847541@qq.com", "password": "12345678q", "from": "web", "emailLoginExpireFlag": ""}
+    data = json.dumps(data)
+    headers = {'Content-Type': 'application/json;charset=UTF-8',
+               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0;   WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'}
+    login = demo.RunMain().run_main('post', url, data=data, headers=headers)
+    login = json.loads(login)
+    print(login['token'],login['user_id'])
+    token = login['token']
+    user_id = login['user_id']
+    return token,user_id
+
+def write_yaml(value1,value2):
+    '''
+    把获取到的 token值写入到 yaml 文件
+    :param value:
+    :return:
+    '''
+    ypath = os.path.join(cur_path,'common','token.yaml')
+    print(ypath)
+    # 需写入的内容
+    t = {'token':value1,'user_id':value2}
+    # 写入到 yaml 文件
+    with open(ypath,'w',encoding='utf-8') as  f:
+        yaml.dump(t,f)
 def add_case(caseName='case',rule="test_*.py"): # 第一步：加载所有的测试用例
     '''caseName='case',表示存放用例的wenjianming
        rule='test.py'，表示匹配用例脚本名称的规则，默认匹配test开头的所有用例'''
@@ -70,6 +99,11 @@ def send_email(sender,psw,receiver,smtpserver,report_file,port):
     smtp.quit()
     print('test report email has send out !')
 if __name__ == '__main__':
+    a = login()
+    token = a[0]
+    user_id = a[1]
+    print('token 的类型是：',type(token))
+    write_yaml(token,user_id)
     all_case = add_case() # 第一步：加载用例
     # 生成测试报告的路径
     run_case(all_case) # 第二步：执行用例
@@ -84,3 +118,4 @@ if __name__ == '__main__':
     port = readConfig.port
     receiver = readConfig.receiver
     send_email(sender,psw,receiver,smtp_server,report_file,port)
+    login()
